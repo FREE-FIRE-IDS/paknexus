@@ -4,13 +4,14 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity } from "lucide-react";
+import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity, Radio } from "lucide-react";
+import logo from "@/assets/pak-nexus-icon.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Quotex Signal Bot — AI Trading Signals" },
-      { name: "description", content: "Generate AI-powered trading signals. Select market and timeframe to get instant CALL/PUT signals." },
+      { title: "PAK NEXUS — Quotex Signal Bot" },
+      { name: "description", content: "Futuristic Quotex signal generator. Select market and timeframe to receive instant CALL/PUT signals." },
     ],
   }),
   component: Index,
@@ -60,32 +61,47 @@ function Index() {
   };
 
   return (
-    <main className="min-h-screen px-4 py-10 sm:py-16">
-      <div className="mx-auto max-w-2xl">
+    <main className="relative min-h-screen px-4 py-10 sm:py-16 z-10">
+      <div className="mx-auto max-w-2xl relative">
         {/* Header */}
         <header className="text-center mb-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-1.5 text-xs text-muted-foreground mb-5 backdrop-blur">
-            <span className="size-2 rounded-full bg-primary animate-pulse" />
-            AI Bot Online
+          <div className="flex justify-center mb-5">
+            <div className="relative">
+              <img
+                src={logo.url}
+                alt="PAK NEXUS"
+                width={72}
+                height={72}
+                className="size-18 rounded-2xl border border-primary/40 animate-pulse-glow"
+                style={{ width: 72, height: 72 }}
+              />
+            </div>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight bg-gradient-to-b from-foreground to-muted-foreground bg-clip-text text-transparent">
-            Quotex Signal Bot
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-xs font-mono uppercase tracking-widest text-primary mb-5 backdrop-blur">
+            <Radio className="size-3 animate-pulse" />
+            System Online
+          </div>
+          <h1 className="text-5xl sm:text-6xl font-black tracking-tight uppercase">
+            <span className="bg-gradient-to-r from-primary via-[var(--primary-glow)] to-primary bg-clip-text text-transparent">
+              PAK NEXUS
+            </span>
           </h1>
-          <p className="mt-3 text-muted-foreground">
-            Select a market and timeframe — get an instant AI-generated signal.
+          <p className="mt-2 text-sm font-mono uppercase tracking-[0.3em] text-muted-foreground">
+            // Quotex Signal Engine
           </p>
         </header>
 
         {/* Form */}
-        <Card className="p-6 sm:p-8 bg-card/70 backdrop-blur border-border shadow-2xl">
+        <Card className="relative overflow-hidden p-6 sm:p-8 bg-card/60 backdrop-blur-xl border-primary/20 shadow-[var(--shadow-elegant)]">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
           <div className="space-y-5">
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium mb-2">
-                <TrendingUp className="size-4 text-primary" /> Market
+              <label className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest mb-2 text-primary">
+                <TrendingUp className="size-3.5" /> Market Pair
               </label>
               <Select value={market} onValueChange={setMarket}>
-                <SelectTrigger className="h-12 bg-input border-border">
-                  <SelectValue placeholder="Choose a market" />
+                <SelectTrigger className="h-12 bg-input/60 border-primary/30 font-mono">
+                  <SelectValue placeholder="// Select market" />
                 </SelectTrigger>
                 <SelectContent>
                   {MARKETS.map((m) => (
@@ -96,12 +112,12 @@ function Index() {
             </div>
 
             <div>
-              <label className="flex items-center gap-2 text-sm font-medium mb-2">
-                <Clock className="size-4 text-primary" /> Timeframe
+              <label className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest mb-2 text-primary">
+                <Clock className="size-3.5" /> Timeframe
               </label>
               <Select value={time} onValueChange={setTime}>
-                <SelectTrigger className="h-12 bg-input border-border">
-                  <SelectValue placeholder="Choose timeframe" />
+                <SelectTrigger className="h-12 bg-input/60 border-primary/30 font-mono">
+                  <SelectValue placeholder="// Select timeframe" />
                 </SelectTrigger>
                 <SelectContent>
                   {TIMES.map((t) => (
@@ -114,12 +130,13 @@ function Index() {
             <Button
               onClick={generate}
               disabled={!market || !time || loading}
-              className="w-full h-13 py-3 text-base font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20"
+              className="w-full h-13 py-3 text-base font-bold uppercase tracking-widest text-primary-foreground shadow-[var(--shadow-glow)] hover:shadow-[0_0_50px_oklch(0.74_0.19_50/0.6)] transition-shadow"
+              style={{ background: "var(--gradient-primary)" }}
             >
               {loading ? (
                 <span className="inline-flex items-center gap-2">
                   <Activity className="size-4 animate-spin" />
-                  Analyzing market…
+                  Scanning Market…
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-2">
@@ -132,53 +149,58 @@ function Index() {
 
         {/* Signal */}
         {signal && (
-          <Card className={`mt-6 p-8 bg-card/70 backdrop-blur border-2 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500 ${
-            signal.direction === "CALL" ? "border-success/60 shadow-success/10" : "border-danger/60 shadow-danger/10"
+          <Card className={`relative overflow-hidden mt-6 p-8 bg-card/70 backdrop-blur-xl border-2 shadow-2xl animate-in fade-in slide-in-from-bottom-4 duration-500 scan-line ${
+            signal.direction === "CALL" ? "border-success/60 shadow-success/20" : "border-danger/60 shadow-danger/20"
           }`}>
             <div className="flex items-center justify-between mb-6">
               <div>
-                <p className="text-xs uppercase tracking-wider text-muted-foreground">Signal</p>
-                <p className="text-lg font-semibold mt-0.5">{signal.market}</p>
+                <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">// Signal</p>
+                <p className="text-lg font-bold mt-0.5 font-mono">{signal.market}</p>
               </div>
-              <Badge variant="secondary" className="text-xs">{signal.time}</Badge>
+              <Badge variant="secondary" className="text-xs font-mono border border-primary/30">{signal.time}</Badge>
             </div>
 
-            <div className={`flex flex-col items-center justify-center rounded-xl py-8 ${
+            <div className={`flex flex-col items-center justify-center rounded-xl py-8 border-2 ${
               signal.direction === "CALL"
-                ? "bg-success/10 text-success"
-                : "bg-danger/10 text-danger"
+                ? "bg-success/10 text-success border-success/40"
+                : "bg-danger/10 text-danger border-danger/40"
             }`}>
               {signal.direction === "CALL" ? (
-                <ArrowUp className="size-16 mb-2" strokeWidth={3} />
+                <ArrowUp className="size-16 mb-2 drop-shadow-[0_0_15px_currentColor]" strokeWidth={3} />
               ) : (
-                <ArrowDown className="size-16 mb-2" strokeWidth={3} />
+                <ArrowDown className="size-16 mb-2 drop-shadow-[0_0_15px_currentColor]" strokeWidth={3} />
               )}
-              <p className="text-4xl font-bold tracking-tight">{signal.direction}</p>
-              <p className="text-sm opacity-80 mt-1">
-                {signal.direction === "CALL" ? "Buy / Up" : "Sell / Down"}
+              <p className="text-5xl font-black tracking-tight uppercase drop-shadow-[0_0_20px_currentColor]">{signal.direction}</p>
+              <p className="text-xs font-mono uppercase tracking-widest opacity-80 mt-2">
+                {signal.direction === "CALL" ? "// Buy / Up" : "// Sell / Down"}
               </p>
             </div>
 
             <div className="grid grid-cols-3 gap-3 mt-6">
-              <div className="rounded-lg bg-secondary/50 p-3 text-center">
-                <p className="text-[10px] uppercase text-muted-foreground tracking-wider">Accuracy</p>
-                <p className="text-lg font-bold text-primary mt-1">{signal.accuracy}%</p>
+              <div className="rounded-lg bg-secondary/40 border border-primary/20 p-3 text-center">
+                <p className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest">Accuracy</p>
+                <p className="text-lg font-black text-primary mt-1">{signal.accuracy}%</p>
               </div>
-              <div className="rounded-lg bg-secondary/50 p-3 text-center">
-                <p className="text-[10px] uppercase text-muted-foreground tracking-wider">Generated</p>
-                <p className="text-sm font-semibold mt-1">{signal.generatedAt}</p>
+              <div className="rounded-lg bg-secondary/40 border border-primary/20 p-3 text-center">
+                <p className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest">Generated</p>
+                <p className="text-sm font-bold mt-1 font-mono">{signal.generatedAt}</p>
               </div>
-              <div className="rounded-lg bg-secondary/50 p-3 text-center">
-                <p className="text-[10px] uppercase text-muted-foreground tracking-wider">Expiry</p>
-                <p className="text-sm font-semibold mt-1">{signal.expiry}</p>
+              <div className="rounded-lg bg-secondary/40 border border-primary/20 p-3 text-center">
+                <p className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest">Expiry</p>
+                <p className="text-sm font-bold mt-1 font-mono">{signal.expiry}</p>
               </div>
             </div>
           </Card>
         )}
 
-        <p className="text-center text-xs text-muted-foreground mt-8 max-w-md mx-auto">
-          ⚠️ Signals are generated by an algorithm for educational/demo purposes. Trading carries real risk — no signal is truly 100% accurate.
-        </p>
+        <footer className="mt-10 text-center">
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
+            Powered by <span className="text-primary font-bold">PAK NEXUS</span>
+          </p>
+          <p className="text-xs text-muted-foreground mt-3 max-w-md mx-auto">
+            ⚠ Signals are for educational purposes. Trading involves risk — no signal is guaranteed.
+          </p>
+        </footer>
       </div>
     </main>
   );

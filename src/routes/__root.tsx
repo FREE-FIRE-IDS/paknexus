@@ -87,10 +87,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
+      { rel: "icon", type: "image/png", href: "/__l5e/assets-v1/74f9cde0-7074-4fbf-be7c-c1a40f0b570d/pak-nexus-icon.png" },
+      { rel: "apple-touch-icon", href: "/__l5e/assets-v1/74f9cde0-7074-4fbf-be7c-c1a40f0b570d/pak-nexus-icon.png" },
     ],
   }),
   shellComponent: RootShell,
