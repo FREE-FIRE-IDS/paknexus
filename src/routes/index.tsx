@@ -197,9 +197,6 @@ function Index() {
           <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
             Powered by <span className="text-primary font-bold">PAK NEXUS</span>
           </p>
-          <p className="text-xs text-muted-foreground mt-3 max-w-md mx-auto">
-            ⚠ Signals are for educational purposes. Trading involves risk — no signal is guaranteed.
-          </p>
         </footer>
       </div>
     </main>
