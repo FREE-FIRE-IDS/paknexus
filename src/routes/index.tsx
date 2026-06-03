@@ -23,7 +23,7 @@ const MARKETS = [
   "EUR/JPY", "GBP/JPY", "BTC/USD", "ETH/USD", "XAU/USD (Gold)",
 ];
 
-const TIMES = ["5 sec", "15 sec", "30 sec", "1 min", "2 min", "5 min", "15 min"];
+const FIXED_TIME = "1 min";
 
 const VALID_LICENSE = "16897463890072";
 const LICENSE_STORAGE_KEY = "pak_nexus_license";
