@@ -155,20 +155,20 @@ function Index() {
     setLoading(true);
     setSignal(null);
     setTimeout(() => {
-      const dir: "CALL" | "PUT" = Math.random() > 0.5 ? "CALL" : "PUT";
+      const analysis = analyzeMarket(market);
       const now = new Date();
-      // Fixed execution time: 15 seconds from now (gives trader time to place trade)
       const entryAt = new Date(now.getTime() + 15_000);
       const expiry = new Date(entryAt.getTime() + parseTimeframeMs(time));
       setSignal({
-        direction: dir,
+        direction: analysis.direction,
         market,
         time,
-        accuracy: 100,
+        accuracy: analysis.confidence,
         entryAt: fmt(entryAt),
         entryAtMs: entryAt.getTime(),
         expiry: fmt(expiry),
         generatedAt: fmt(now),
+        indicators: analysis.indicators,
       });
       setLoading(false);
     }, 1800);
