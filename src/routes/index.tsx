@@ -55,7 +55,7 @@ function Index() {
   const [licenseError, setLicenseError] = useState("");
 
   const [market, setMarket] = useState<string>("");
-  const [time, setTime] = useState<string>("");
+  const time = FIXED_TIME;
   const [loading, setLoading] = useState(false);
   const [signal, setSignal] = useState<Signal | null>(null);
   const [countdown, setCountdown] = useState<number>(0);
