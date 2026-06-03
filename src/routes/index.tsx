@@ -356,9 +356,47 @@ function Index() {
               </div>
             </div>
 
+            {/* Market Analysis */}
+            <div className="mt-4 rounded-xl border border-primary/30 bg-secondary/30 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <BarChart3 className="size-4 text-primary" />
+                <p className="text-[10px] font-mono uppercase tracking-widest text-primary">// Market Analysis</p>
+              </div>
+              <div className="space-y-2">
+                {signal.indicators.map((ind) => {
+                  const aligned = ind.vote === signal.direction;
+                  return (
+                    <div key={ind.name} className="flex items-center justify-between text-xs font-mono">
+                      <div className="flex items-center gap-2">
+                        {ind.name === "EMA Trend" && <Waves className="size-3 text-muted-foreground" />}
+                        {ind.name === "RSI Momentum" && <Flame className="size-3 text-muted-foreground" />}
+                        {ind.name === "MACD Histogram" && <Activity className="size-3 text-muted-foreground" />}
+                        {ind.name === "Candle Pattern" && <CheckCircle2 className="size-3 text-muted-foreground" />}
+                        {ind.name === "Volatility" && <BarChart3 className="size-3 text-muted-foreground" />}
+                        <span className="text-muted-foreground uppercase tracking-wider">{ind.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-foreground/80">{ind.value}</span>
+                        <Badge
+                          variant="secondary"
+                          className={`text-[9px] px-1.5 py-0 border ${
+                            ind.vote === "CALL"
+                              ? "bg-success/10 text-success border-success/40"
+                              : "bg-danger/10 text-danger border-danger/40"
+                          } ${aligned ? "" : "opacity-50"}`}
+                        >
+                          {ind.vote}
+                        </Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="grid grid-cols-3 gap-3 mt-4">
               <div className="rounded-lg bg-secondary/40 border border-primary/20 p-3 text-center">
-                <p className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest">Accuracy</p>
+                <p className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest">Confidence</p>
                 <p className="text-lg font-black text-primary mt-1">{signal.accuracy}%</p>
               </div>
               <div className="rounded-lg bg-secondary/40 border border-primary/20 p-3 text-center">
