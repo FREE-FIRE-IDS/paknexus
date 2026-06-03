@@ -34,6 +34,7 @@ type Signal = {
   time: string;
   accuracy: number;
   entryAt: string;
+  entryAtMs: number;
   expiry: string;
   generatedAt: string;
 };
