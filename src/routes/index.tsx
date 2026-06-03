@@ -1,10 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity, Radio } from "lucide-react";
+import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity, Radio, KeyRound, Lock, Timer } from "lucide-react";
 import logo from "@/assets/pak-nexus-icon.png.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -24,20 +25,69 @@ const MARKETS = [
 
 const TIMES = ["5 sec", "15 sec", "30 sec", "1 min", "2 min", "5 min", "15 min"];
 
+const VALID_LICENSE = "16897463890072";
+const LICENSE_STORAGE_KEY = "pak_nexus_license";
+
 type Signal = {
   direction: "CALL" | "PUT";
   market: string;
   time: string;
   accuracy: number;
+  entryAt: string;
+  entryAtMs: number;
   expiry: string;
   generatedAt: string;
 };
 
+function parseTimeframeMs(tf: string): number {
+  const [n, unit] = tf.split(" ");
+  const num = parseInt(n, 10);
+  return unit.startsWith("sec") ? num * 1000 : num * 60_000;
+}
+
+function fmt(d: Date) {
+  return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
 function Index() {
+  const [licensed, setLicensed] = useState(false);
+  const [licenseInput, setLicenseInput] = useState("");
+  const [licenseError, setLicenseError] = useState("");
+
   const [market, setMarket] = useState<string>("");
   const [time, setTime] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [signal, setSignal] = useState<Signal | null>(null);
+  const [countdown, setCountdown] = useState<number>(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (localStorage.getItem(LICENSE_STORAGE_KEY) === VALID_LICENSE) {
+      setLicensed(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!signal) return;
+    const tick = () => {
+      const diff = Math.max(0, Math.floor((new Date(signal.entryAtMs).getTime() - Date.now()) / 1000));
+      setCountdown(diff);
+    };
+    tick();
+    const id = setInterval(tick, 250);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [signal]);
+
+  const activateLicense = () => {
+    if (licenseInput.trim() === VALID_LICENSE) {
+      localStorage.setItem(LICENSE_STORAGE_KEY, VALID_LICENSE);
+      setLicensed(true);
+      setLicenseError("");
+    } else {
+      setLicenseError("Invalid license key. Access denied.");
+    }
+  };
 
   const generate = () => {
     if (!market || !time) return;
@@ -45,20 +95,76 @@ function Index() {
     setSignal(null);
     setTimeout(() => {
       const dir: "CALL" | "PUT" = Math.random() > 0.5 ? "CALL" : "PUT";
-      const acc = Math.floor(85 + Math.random() * 12);
       const now = new Date();
-      const expiry = new Date(now.getTime() + 60000);
+      // Fixed execution time: 15 seconds from now (gives trader time to place trade)
+      const entryAt = new Date(now.getTime() + 15_000);
+      const expiry = new Date(entryAt.getTime() + parseTimeframeMs(time));
       setSignal({
         direction: dir,
         market,
         time,
-        accuracy: acc,
-        expiry: expiry.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-        generatedAt: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+        accuracy: 100,
+        entryAt: fmt(entryAt),
+        entryAtMs: entryAt.getTime(),
+        expiry: fmt(expiry),
+        generatedAt: fmt(now),
       });
       setLoading(false);
     }, 1800);
   };
+
+  if (!licensed) {
+    return (
+      <main className="relative min-h-screen px-4 py-16 z-10 flex items-center justify-center">
+        <div className="w-full max-w-md">
+          <div className="flex justify-center mb-6">
+            <img src={logo.url} alt="PAK NEXUS" width={72} height={72}
+              className="rounded-2xl border border-primary/40 animate-pulse-glow"
+              style={{ width: 72, height: 72 }} />
+          </div>
+          <h1 className="text-center text-3xl font-black uppercase tracking-tight mb-2">
+            <span className="bg-gradient-to-r from-primary via-[var(--primary-glow)] to-primary bg-clip-text text-transparent">
+              PAK NEXUS
+            </span>
+          </h1>
+          <p className="text-center text-xs font-mono uppercase tracking-[0.3em] text-muted-foreground mb-8">
+            // Secure Access Required
+          </p>
+
+          <Card className="p-6 bg-card/60 backdrop-blur-xl border-primary/20 shadow-[var(--shadow-elegant)]">
+            <div className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-primary mb-3">
+              <Lock className="size-3.5" /> License Activation
+            </div>
+            <label className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest mb-2 text-muted-foreground">
+              <KeyRound className="size-3.5" /> Enter License Key
+            </label>
+            <Input
+              value={licenseInput}
+              onChange={(e) => setLicenseInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && activateLicense()}
+              placeholder="••••••••••••••"
+              className="h-12 bg-input/60 border-primary/30 font-mono tracking-widest"
+            />
+            {licenseError && (
+              <p className="text-xs font-mono text-danger mt-2">// {licenseError}</p>
+            )}
+            <Button
+              onClick={activateLicense}
+              disabled={!licenseInput.trim()}
+              className="w-full h-12 mt-4 font-bold uppercase tracking-widest text-primary-foreground shadow-[var(--shadow-glow)]"
+              style={{ background: "var(--gradient-primary)" }}
+            >
+              <Zap className="size-4 mr-2" /> Activate
+            </Button>
+          </Card>
+
+          <p className="mt-6 text-center text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
+            Powered by <span className="text-primary font-bold">PAK NEXUS</span>
+          </p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="relative min-h-screen px-4 py-10 sm:py-16 z-10">
@@ -176,7 +282,24 @@ function Index() {
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mt-6">
+            {/* Execution Timer */}
+            <div className="mt-6 rounded-xl border-2 border-primary/40 bg-primary/10 p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Timer className="size-6 text-primary animate-pulse" />
+                <div>
+                  <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">// Enter Trade At</p>
+                  <p className="text-xl font-black font-mono text-primary">{signal.entryAt}</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Countdown</p>
+                <p className={`text-2xl font-black font-mono ${countdown <= 5 ? "text-danger animate-pulse" : "text-primary"}`}>
+                  {countdown}s
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mt-4">
               <div className="rounded-lg bg-secondary/40 border border-primary/20 p-3 text-center">
                 <p className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest">Accuracy</p>
                 <p className="text-lg font-black text-primary mt-1">{signal.accuracy}%</p>
