@@ -221,16 +221,12 @@ function Index() {
               <label className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest mb-2 text-primary">
                 <Clock className="size-3.5" /> Timeframe
               </label>
-              <Select value={time} onValueChange={setTime}>
-                <SelectTrigger className="h-12 bg-input/60 border-primary/30 font-mono">
-                  <SelectValue placeholder="// Select timeframe" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIMES.map((t) => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="h-12 rounded-md bg-input/60 border border-primary/30 font-mono flex items-center justify-between px-3">
+                <span className="text-foreground font-bold">{FIXED_TIME}</span>
+                <Badge variant="secondary" className="text-[10px] font-mono border border-primary/30 uppercase tracking-widest">
+                  <Lock className="size-3 mr-1" /> Locked
+                </Badge>
+              </div>
             </div>
 
             <Button
