@@ -23,7 +23,7 @@ const MARKETS = [
   "EUR/JPY", "GBP/JPY", "BTC/USD", "ETH/USD", "XAU/USD (Gold)",
 ];
 
-const TIMES = ["5 sec", "15 sec", "30 sec", "1 min", "2 min", "5 min", "15 min"];
+const FIXED_TIME = "1 min";
 
 const VALID_LICENSE = "16897463890072";
 const LICENSE_STORAGE_KEY = "pak_nexus_license";
@@ -55,7 +55,7 @@ function Index() {
   const [licenseError, setLicenseError] = useState("");
 
   const [market, setMarket] = useState<string>("");
-  const [time, setTime] = useState<string>("");
+  const time = FIXED_TIME;
   const [loading, setLoading] = useState(false);
   const [signal, setSignal] = useState<Signal | null>(null);
   const [countdown, setCountdown] = useState<number>(0);
@@ -221,16 +221,12 @@ function Index() {
               <label className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest mb-2 text-primary">
                 <Clock className="size-3.5" /> Timeframe
               </label>
-              <Select value={time} onValueChange={setTime}>
-                <SelectTrigger className="h-12 bg-input/60 border-primary/30 font-mono">
-                  <SelectValue placeholder="// Select timeframe" />
-                </SelectTrigger>
-                <SelectContent>
-                  {TIMES.map((t) => (
-                    <SelectItem key={t} value={t}>{t}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="h-12 rounded-md bg-input/60 border border-primary/30 font-mono flex items-center justify-between px-3">
+                <span className="text-foreground font-bold">{FIXED_TIME}</span>
+                <Badge variant="secondary" className="text-[10px] font-mono border border-primary/30 uppercase tracking-widest">
+                  <Lock className="size-3 mr-1" /> Locked
+                </Badge>
+              </div>
             </div>
 
             <Button
