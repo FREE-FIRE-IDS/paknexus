@@ -105,7 +105,6 @@ function Index() {
         time,
         accuracy: 100,
         entryAt: fmt(entryAt),
-        // @ts-expect-error stash ms for countdown
         entryAtMs: entryAt.getTime(),
         expiry: fmt(expiry),
         generatedAt: fmt(now),
