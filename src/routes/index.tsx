@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity, Radio, KeyRound, Lock, Timer } from "lucide-react";
+import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity, Radio, KeyRound, Lock, Timer, BarChart3, Waves, Flame, CheckCircle2 } from "lucide-react";
 import logo from "@/assets/pak-nexus-icon.png.asset.json";
 
 export const Route = createFileRoute("/")({
