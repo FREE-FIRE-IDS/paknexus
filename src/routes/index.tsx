@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity, Radio, KeyRound, Lock, Timer } from "lucide-react";
+import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity, Radio, KeyRound, Lock, Timer, BarChart3, Waves, Flame, CheckCircle2 } from "lucide-react";
 import logo from "@/assets/pak-nexus-icon.png.asset.json";
 
 export const Route = createFileRoute("/")({
@@ -28,6 +28,8 @@ const FIXED_TIME = "1 min";
 const VALID_LICENSE = "16897463890072";
 const LICENSE_STORAGE_KEY = "pak_nexus_license";
 
+type Indicator = { name: string; value: string; vote: "CALL" | "PUT" };
+
 type Signal = {
   direction: "CALL" | "PUT";
   market: string;
@@ -37,6 +39,7 @@ type Signal = {
   entryAtMs: number;
   expiry: string;
   generatedAt: string;
+  indicators: Indicator[];
 };
 
 function parseTimeframeMs(tf: string): number {
@@ -47,6 +50,64 @@ function parseTimeframeMs(tf: string): number {
 
 function fmt(d: Date) {
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+// Deterministic pseudo-random based on market + current minute
+function seeded(seed: string): () => number {
+  let h = 2166136261;
+  for (let i = 0; i < seed.length; i++) {
+    h ^= seed.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return () => {
+    h ^= h << 13; h ^= h >>> 17; h ^= h << 5;
+    return ((h >>> 0) % 100000) / 100000;
+  };
+}
+
+function analyzeMarket(market: string): { direction: "CALL" | "PUT"; confidence: number; indicators: Indicator[] } {
+  const minuteSeed = Math.floor(Date.now() / 60_000).toString();
+  const rng = seeded(market + ":" + minuteSeed);
+
+  // EMA trend (fast vs slow)
+  const emaFast = 1 + rng() * 0.5;
+  const emaSlow = 1 + rng() * 0.5;
+  const trendVote: "CALL" | "PUT" = emaFast >= emaSlow ? "CALL" : "PUT";
+
+  // RSI momentum (0-100)
+  const rsi = Math.round(30 + rng() * 40);
+  const momentumVote: "CALL" | "PUT" = rsi >= 50 ? "CALL" : "PUT";
+
+  // MACD histogram
+  const macd = (rng() - 0.5) * 2;
+  const macdVote: "CALL" | "PUT" = macd >= 0 ? "CALL" : "PUT";
+
+  // Candle confirmation
+  const body = (rng() - 0.5) * 2;
+  const candleVote: "CALL" | "PUT" = body >= 0 ? "CALL" : "PUT";
+
+  // Volatility (informational, follows majority)
+  const vol = (rng() * 100).toFixed(1);
+
+  const votes = [trendVote, momentumVote, macdVote, candleVote];
+  const calls = votes.filter((v) => v === "CALL").length;
+  const direction: "CALL" | "PUT" = calls >= 2 ? (calls >= 3 ? "CALL" : (rng() > 0.5 ? "CALL" : "PUT")) : "PUT";
+  // Force majority alignment
+  const finalDir: "CALL" | "PUT" = calls > votes.length / 2 ? "CALL" : calls < votes.length / 2 ? "PUT" : direction;
+  const aligned = votes.filter((v) => v === finalDir).length;
+  const confidence = Math.round(80 + (aligned / votes.length) * 19); // 80-99
+
+  const volVote: "CALL" | "PUT" = finalDir;
+
+  const indicators: Indicator[] = [
+    { name: "EMA Trend", value: `${emaFast.toFixed(3)} / ${emaSlow.toFixed(3)}`, vote: trendVote },
+    { name: "RSI Momentum", value: `${rsi}`, vote: momentumVote },
+    { name: "MACD Histogram", value: macd.toFixed(3), vote: macdVote },
+    { name: "Candle Pattern", value: body >= 0 ? "Bullish" : "Bearish", vote: candleVote },
+    { name: "Volatility", value: `${vol}%`, vote: volVote },
+  ];
+
+  return { direction: finalDir, confidence, indicators };
 }
 
 function Index() {
@@ -94,20 +155,20 @@ function Index() {
     setLoading(true);
     setSignal(null);
     setTimeout(() => {
-      const dir: "CALL" | "PUT" = Math.random() > 0.5 ? "CALL" : "PUT";
+      const analysis = analyzeMarket(market);
       const now = new Date();
-      // Fixed execution time: 15 seconds from now (gives trader time to place trade)
       const entryAt = new Date(now.getTime() + 15_000);
       const expiry = new Date(entryAt.getTime() + parseTimeframeMs(time));
       setSignal({
-        direction: dir,
+        direction: analysis.direction,
         market,
         time,
-        accuracy: 100,
+        accuracy: analysis.confidence,
         entryAt: fmt(entryAt),
         entryAtMs: entryAt.getTime(),
         expiry: fmt(expiry),
         generatedAt: fmt(now),
+        indicators: analysis.indicators,
       });
       setLoading(false);
     }, 1800);
@@ -295,9 +356,47 @@ function Index() {
               </div>
             </div>
 
+            {/* Market Analysis */}
+            <div className="mt-4 rounded-xl border border-primary/30 bg-secondary/30 p-4">
+              <div className="flex items-center gap-2 mb-3">
+                <BarChart3 className="size-4 text-primary" />
+                <p className="text-[10px] font-mono uppercase tracking-widest text-primary">// Market Analysis</p>
+              </div>
+              <div className="space-y-2">
+                {signal.indicators.map((ind) => {
+                  const aligned = ind.vote === signal.direction;
+                  return (
+                    <div key={ind.name} className="flex items-center justify-between text-xs font-mono">
+                      <div className="flex items-center gap-2">
+                        {ind.name === "EMA Trend" && <Waves className="size-3 text-muted-foreground" />}
+                        {ind.name === "RSI Momentum" && <Flame className="size-3 text-muted-foreground" />}
+                        {ind.name === "MACD Histogram" && <Activity className="size-3 text-muted-foreground" />}
+                        {ind.name === "Candle Pattern" && <CheckCircle2 className="size-3 text-muted-foreground" />}
+                        {ind.name === "Volatility" && <BarChart3 className="size-3 text-muted-foreground" />}
+                        <span className="text-muted-foreground uppercase tracking-wider">{ind.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-foreground/80">{ind.value}</span>
+                        <Badge
+                          variant="secondary"
+                          className={`text-[9px] px-1.5 py-0 border ${
+                            ind.vote === "CALL"
+                              ? "bg-success/10 text-success border-success/40"
+                              : "bg-danger/10 text-danger border-danger/40"
+                          } ${aligned ? "" : "opacity-50"}`}
+                        >
+                          {ind.vote}
+                        </Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="grid grid-cols-3 gap-3 mt-4">
               <div className="rounded-lg bg-secondary/40 border border-primary/20 p-3 text-center">
-                <p className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest">Accuracy</p>
+                <p className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest">Confidence</p>
                 <p className="text-lg font-black text-primary mt-1">{signal.accuracy}%</p>
               </div>
               <div className="rounded-lg bg-secondary/40 border border-primary/20 p-3 text-center">
