@@ -1,11 +1,126 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity, Radio } from "lucide-react";
+import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity, Radio, Lock, KeyRound, ShieldCheck } from "lucide-react";
 import logo from "@/assets/pak-nexus-icon.png.asset.json";
+
+const REQUIRED_PASS = "Ahad@7860";
+const REQUIRED_LICENSE = "Ahad@168974638900720089";
+const AUTH_KEY = "pak_nexus_auth_v1";
+
+function AuthGate({ onUnlock }: { onUnlock: () => void }) {
+  const [pass, setPass] = useState("");
+  const [license, setLicense] = useState("");
+  const [error, setError] = useState("");
+  const [verifying, setVerifying] = useState(false);
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setVerifying(true);
+    setTimeout(() => {
+      if (pass === REQUIRED_PASS && license === REQUIRED_LICENSE) {
+        try { localStorage.setItem(AUTH_KEY, "1"); } catch {}
+        onUnlock();
+      } else {
+        setError("// Invalid password or license key");
+        setVerifying(false);
+      }
+    }, 900);
+  };
+
+  return (
+    <main className="relative min-h-screen px-4 py-10 sm:py-16 z-10 flex items-center justify-center">
+      <div className="mx-auto max-w-md w-full">
+        <header className="text-center mb-8">
+          <div className="flex justify-center mb-5">
+            <img
+              src={logo.url}
+              alt="PAK NEXUS"
+              width={72}
+              height={72}
+              className="size-18 rounded-2xl border border-primary/40 animate-pulse-glow"
+              style={{ width: 72, height: 72 }}
+            />
+          </div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 py-1.5 text-xs font-mono uppercase tracking-widest text-primary mb-4 backdrop-blur">
+            <Lock className="size-3" /> Secure Access
+          </div>
+          <h1 className="text-4xl sm:text-5xl font-black tracking-tight uppercase">
+            <span className="bg-gradient-to-r from-primary via-[var(--primary-glow)] to-primary bg-clip-text text-transparent">
+              PAK NEXUS
+            </span>
+          </h1>
+          <p className="mt-2 text-xs font-mono uppercase tracking-[0.3em] text-muted-foreground">
+            // Authorization Required
+          </p>
+        </header>
+
+        <Card className="relative overflow-hidden p-6 sm:p-8 bg-card/60 backdrop-blur-xl border-primary/20 shadow-[var(--shadow-elegant)]">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+          <form onSubmit={submit} className="space-y-5">
+            <div>
+              <label className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest mb-2 text-primary">
+                <Lock className="size-3.5" /> Password
+              </label>
+              <Input
+                type="password"
+                value={pass}
+                onChange={(e) => setPass(e.target.value)}
+                placeholder="// Enter password"
+                className="h-12 bg-input/60 border-primary/30 font-mono"
+                autoFocus
+              />
+            </div>
+            <div>
+              <label className="flex items-center gap-2 text-xs font-mono uppercase tracking-widest mb-2 text-primary">
+                <KeyRound className="size-3.5" /> License Key
+              </label>
+              <Input
+                type="password"
+                value={license}
+                onChange={(e) => setLicense(e.target.value)}
+                placeholder="// Enter license key"
+                className="h-12 bg-input/60 border-primary/30 font-mono"
+              />
+            </div>
+
+            {error && (
+              <p className="text-xs font-mono text-danger text-center">{error}</p>
+            )}
+
+            <Button
+              type="submit"
+              disabled={!pass || !license || verifying}
+              className="w-full h-13 py-3 text-base font-bold uppercase tracking-widest text-primary-foreground shadow-[var(--shadow-glow)] hover:shadow-[0_0_50px_oklch(0.74_0.19_50/0.6)] transition-shadow"
+              style={{ background: "var(--gradient-primary)" }}
+            >
+              {verifying ? (
+                <span className="inline-flex items-center gap-2">
+                  <Activity className="size-4 animate-spin" /> Verifying…
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-2">
+                  <ShieldCheck className="size-4" /> Unlock System
+                </span>
+              )}
+            </Button>
+          </form>
+        </Card>
+
+        <footer className="mt-8 text-center">
+          <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
+            Powered by <span className="text-primary font-bold">PAK NEXUS</span>
+          </p>
+        </footer>
+      </div>
+    </main>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({
