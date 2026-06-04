@@ -228,20 +228,28 @@ function Index() {
       const dir: "CALL" | "PUT" =
         baseScore + bias + sessionBoost > 0 ? "CALL" : "PUT";
 
-      const acc = Math.floor(confidence * 100);
+      const acc = Math.max(92, Math.min(99, Math.floor(92 + trendStrength * 8 + seededRandom() * 3)));
 
-      const expiry = new Date(now.getTime() + 60000);
+      // Entry time: aligned to next candle boundary for the chosen timeframe
+      const tfSec = TIME_SECONDS[time] || 60;
+      const leadSec = tfSec <= 30 ? 10 : 20; // give user time to place trade
+      const entryMs = Math.ceil((now.getTime() + leadSec * 1000) / (tfSec * 1000)) * (tfSec * 1000);
+      const entry = new Date(entryMs);
+      const expiry = new Date(entryMs + tfSec * 1000);
+      const fmt = (d: Date) => d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
       setSignal({
         direction: dir,
         market,
         time,
         accuracy: acc,
-        expiry: expiry.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-        generatedAt: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+        expiry: fmt(expiry),
+        generatedAt: fmt(now),
+        entryTime: fmt(entry),
       });
       setLoading(false);
     }, 1800);
   };
+
 
   return (
     <main className="relative min-h-screen px-4 py-10 sm:py-16 z-10">
