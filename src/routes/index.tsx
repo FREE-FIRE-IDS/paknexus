@@ -146,7 +146,19 @@ type Signal = {
   accuracy: number;
   expiry: string;
   generatedAt: string;
+  entryTime: string;
 };
+
+const TIME_SECONDS: Record<string, number> = {
+  "5 sec": 5,
+  "15 sec": 15,
+  "30 sec": 30,
+  "1 min": 60,
+  "2 min": 120,
+  "5 min": 300,
+  "15 min": 900,
+};
+
 
 function Index() {
   const [authed, setAuthed] = useState(false);
