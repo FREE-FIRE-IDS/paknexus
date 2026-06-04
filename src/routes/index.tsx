@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity, Radio, Lock, KeyRound, ShieldCheck } from "lucide-react";
+import { ArrowUp, ArrowDown, Zap, TrendingUp, Clock, Activity, Radio, Lock, KeyRound, ShieldCheck, Sun, Sunrise, Sunset, Star } from "lucide-react";
 import logo from "@/assets/pak-nexus-icon.png.asset.json";
 
 const REQUIRED_PASS = "Ahad@7860";
@@ -315,6 +315,54 @@ function Index() {
                 </span>
               )}
             </Button>
+          </div>
+        </Card>
+
+        {/* Trading Sessions Guide */}
+        <Card className="relative overflow-hidden mt-6 p-6 bg-card/60 backdrop-blur-xl border-primary/20 shadow-[var(--shadow-elegant)]">
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent" />
+          <div className="flex items-center gap-2 mb-4">
+            <Clock className="size-4 text-primary" />
+            <h2 className="text-sm font-mono uppercase tracking-widest text-primary font-bold">Optimal Trade Windows</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="rounded-lg bg-success/10 border border-success/30 p-3 flex items-start gap-3">
+              <Sunrise className="size-5 text-success shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold uppercase text-success tracking-wider">London / Asia Session</p>
+                <p className="text-sm font-mono mt-1 text-foreground">08:00 AM – 12:00 PM</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Highest volatility • Best for EUR/USD, GBP/USD, USD/JPY</p>
+              </div>
+            </div>
+            <div className="rounded-lg bg-success/10 border border-success/30 p-3 flex items-start gap-3">
+              <Sun className="size-5 text-success shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold uppercase text-success tracking-wider">New York Session</p>
+                <p className="text-sm font-mono mt-1 text-foreground">01:00 PM – 05:00 PM</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Major US news • Best for BTC/USD, ETH/USD, XAU/USD</p>
+              </div>
+            </div>
+            <div className="rounded-lg bg-secondary/40 border border-primary/20 p-3 flex items-start gap-3">
+              <Sunset className="size-5 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold uppercase text-primary tracking-wider">Overlap Session</p>
+                <p className="text-sm font-mono mt-1 text-foreground">12:00 PM – 01:00 PM</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Moderate activity • Good for all pairs</p>
+              </div>
+            </div>
+            <div className="rounded-lg bg-danger/10 border border-danger/30 p-3 flex items-start gap-3">
+              <Star className="size-5 text-danger shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-bold uppercase text-danger tracking-wider">Off-Peak / Night</p>
+                <p className="text-sm font-mono mt-1 text-foreground">05:00 PM – 08:00 AM</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">Low liquidity • Avoid or use longer timeframes</p>
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 rounded-lg bg-primary/5 border border-primary/20 p-3">
+            <p className="text-xs font-mono text-center text-primary">
+              <span className="font-bold">Pro Tip:</span> 15 min timeframe gives the strongest signals. 5 sec & 15 sec are high risk — use only in active sessions.
+            </p>
           </div>
         </Card>
 
