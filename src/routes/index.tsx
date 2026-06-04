@@ -413,7 +413,16 @@ function Index() {
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mt-6">
+            {/* Entry Time — most important */}
+            <div className="mt-6 rounded-xl border-2 border-primary/50 bg-primary/10 p-4 text-center shadow-[var(--shadow-glow)]">
+              <p className="text-[10px] font-mono uppercase tracking-widest text-primary/80">// Trade Entry Time</p>
+              <p className="text-3xl font-black font-mono text-primary mt-1 drop-shadow-[0_0_15px_currentColor]">{signal.entryTime}</p>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">
+                Place your {signal.direction} trade at this exact time
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mt-4">
               <div className="rounded-lg bg-secondary/40 border border-primary/20 p-3 text-center">
                 <p className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest">Accuracy</p>
                 <p className="text-lg font-black text-primary mt-1">{signal.accuracy}%</p>
@@ -427,6 +436,7 @@ function Index() {
                 <p className="text-sm font-bold mt-1 font-mono">{signal.expiry}</p>
               </div>
             </div>
+
           </Card>
         )}
 
