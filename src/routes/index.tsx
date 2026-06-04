@@ -168,7 +168,7 @@ function Index() {
     setSignal(null);
     setTimeout(() => {
       const dir: "CALL" | "PUT" = Math.random() > 0.5 ? "CALL" : "PUT";
-      const acc = Math.floor(85 + Math.random() * 12);
+      const acc = Math.floor(95 + Math.random() * 5);
       const now = new Date();
       const expiry = new Date(now.getTime() + 60000);
       setSignal({
