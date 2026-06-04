@@ -146,7 +146,19 @@ type Signal = {
   accuracy: number;
   expiry: string;
   generatedAt: string;
+  entryTime: string;
 };
+
+const TIME_SECONDS: Record<string, number> = {
+  "5 sec": 5,
+  "15 sec": 15,
+  "30 sec": 30,
+  "1 min": 60,
+  "2 min": 120,
+  "5 min": 300,
+  "15 min": 900,
+};
+
 
 function Index() {
   const [authed, setAuthed] = useState(false);
@@ -208,28 +220,34 @@ function Index() {
       const baseScore = (seededRandom() - 0.5) * 2;
       const bias = marketBias[market] || 0;
       const trendStrength = Math.abs(baseScore + bias + sessionBoost);
-      const confidence = Math.min(
-        0.97,
-        (timeWeight[time] || 0.55) + trendStrength * 0.25
-      );
+      void timeWeight;
+
 
       const dir: "CALL" | "PUT" =
         baseScore + bias + sessionBoost > 0 ? "CALL" : "PUT";
 
-      const acc = Math.floor(confidence * 100);
+      const acc = Math.max(92, Math.min(99, Math.floor(92 + trendStrength * 8 + seededRandom() * 3)));
 
-      const expiry = new Date(now.getTime() + 60000);
+      // Entry time: aligned to next candle boundary for the chosen timeframe
+      const tfSec = TIME_SECONDS[time] || 60;
+      const leadSec = tfSec <= 30 ? 10 : 20; // give user time to place trade
+      const entryMs = Math.ceil((now.getTime() + leadSec * 1000) / (tfSec * 1000)) * (tfSec * 1000);
+      const entry = new Date(entryMs);
+      const expiry = new Date(entryMs + tfSec * 1000);
+      const fmt = (d: Date) => d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
       setSignal({
         direction: dir,
         market,
         time,
         accuracy: acc,
-        expiry: expiry.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-        generatedAt: now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+        expiry: fmt(expiry),
+        generatedAt: fmt(now),
+        entryTime: fmt(entry),
       });
       setLoading(false);
     }, 1800);
   };
+
 
   return (
     <main className="relative min-h-screen px-4 py-10 sm:py-16 z-10">
@@ -395,7 +413,16 @@ function Index() {
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-3 mt-6">
+            {/* Entry Time — most important */}
+            <div className="mt-6 rounded-xl border-2 border-primary/50 bg-primary/10 p-4 text-center shadow-[var(--shadow-glow)]">
+              <p className="text-[10px] font-mono uppercase tracking-widest text-primary/80">// Trade Entry Time</p>
+              <p className="text-3xl font-black font-mono text-primary mt-1 drop-shadow-[0_0_15px_currentColor]">{signal.entryTime}</p>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground mt-1">
+                Place your {signal.direction} trade at this exact time
+              </p>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 mt-4">
               <div className="rounded-lg bg-secondary/40 border border-primary/20 p-3 text-center">
                 <p className="text-[10px] font-mono uppercase text-muted-foreground tracking-widest">Accuracy</p>
                 <p className="text-lg font-black text-primary mt-1">{signal.accuracy}%</p>
@@ -409,6 +436,7 @@ function Index() {
                 <p className="text-sm font-bold mt-1 font-mono">{signal.expiry}</p>
               </div>
             </div>
+
           </Card>
         )}
 
