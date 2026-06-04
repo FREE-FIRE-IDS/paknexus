@@ -167,9 +167,57 @@ function Index() {
     setLoading(true);
     setSignal(null);
     setTimeout(() => {
-      const dir: "CALL" | "PUT" = Math.random() > 0.5 ? "CALL" : "PUT";
-      const acc = Math.floor(95 + Math.random() * 5);
       const now = new Date();
+      const seedStr = `${market}-${time}-${now.getHours()}-${now.getMinutes()}`;
+      let hash = 0;
+      for (let i = 0; i < seedStr.length; i++) {
+        hash = ((hash << 5) - hash + seedStr.charCodeAt(i)) | 0;
+      }
+      const seededRandom = () => {
+        hash = ((hash * 16807 + 0) % 2147483647) | 0;
+        return (hash & 0x7fffffff) / 0x7fffffff;
+      };
+
+      const marketBias: Record<string, number> = {
+        "EUR/USD": 0.05,
+        "GBP/USD": -0.03,
+        "USD/JPY": 0.08,
+        "AUD/USD": -0.06,
+        "USD/CAD": 0.04,
+        "EUR/JPY": -0.02,
+        "GBP/JPY": 0.06,
+        "BTC/USD": 0.1,
+        "ETH/USD": -0.08,
+        "XAU/USD (Gold)": 0.03,
+      };
+
+      const hour = now.getHours();
+      const sessionBoost =
+        (hour >= 8 && hour < 12) || (hour >= 13 && hour < 17) ? 0.15 : 0.05;
+
+      const timeWeight: Record<string, number> = {
+        "5 sec": 0.52,
+        "15 sec": 0.54,
+        "30 sec": 0.56,
+        "1 min": 0.58,
+        "2 min": 0.6,
+        "5 min": 0.65,
+        "15 min": 0.72,
+      };
+
+      const baseScore = (seededRandom() - 0.5) * 2;
+      const bias = marketBias[market] || 0;
+      const trendStrength = Math.abs(baseScore + bias + sessionBoost);
+      const confidence = Math.min(
+        0.97,
+        (timeWeight[time] || 0.55) + trendStrength * 0.25
+      );
+
+      const dir: "CALL" | "PUT" =
+        baseScore + bias + sessionBoost > 0 ? "CALL" : "PUT";
+
+      const acc = Math.floor(confidence * 100);
+
       const expiry = new Date(now.getTime() + 60000);
       setSignal({
         direction: dir,
