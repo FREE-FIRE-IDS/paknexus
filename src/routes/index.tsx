@@ -149,10 +149,18 @@ type Signal = {
 };
 
 function Index() {
+  const [authed, setAuthed] = useState(false);
+  useEffect(() => {
+    try { if (localStorage.getItem(AUTH_KEY) === "1") setAuthed(true); } catch {}
+  }, []);
+
   const [market, setMarket] = useState<string>("");
   const [time, setTime] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [signal, setSignal] = useState<Signal | null>(null);
+
+  if (!authed) return <AuthGate onUnlock={() => setAuthed(true)} />;
+
 
   const generate = () => {
     if (!market || !time) return;
