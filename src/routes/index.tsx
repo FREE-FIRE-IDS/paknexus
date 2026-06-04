@@ -220,10 +220,8 @@ function Index() {
       const baseScore = (seededRandom() - 0.5) * 2;
       const bias = marketBias[market] || 0;
       const trendStrength = Math.abs(baseScore + bias + sessionBoost);
-      const confidence = Math.min(
-        0.97,
-        (timeWeight[time] || 0.55) + trendStrength * 0.25
-      );
+      void timeWeight;
+
 
       const dir: "CALL" | "PUT" =
         baseScore + bias + sessionBoost > 0 ? "CALL" : "PUT";
